@@ -12,6 +12,14 @@ var authorType = new graphql.GraphQLObjectType({
   }
 });
 
+var insertResType = new graphql.GraphQLObjectType({
+  name: 'InsertRes',
+  fields: {
+    acknowledged: { type: graphql.GraphQLBoolean },
+    insertedId: { type: graphql.GraphQLInt },
+  }
+});
+
 // Define the Query type
 var queryType = new graphql.GraphQLObjectType({
   name: 'Query',
@@ -37,7 +45,24 @@ var queryType = new graphql.GraphQLObjectType({
   }
 });
 
-var schema = new graphql.GraphQLSchema({query: queryType});
+var mutationType = new graphql.GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addAuthor: {
+      type: insertResType,
+      // `args` describes the arguments that the `addAuthor` query accepts
+      args: {
+        id: { type: graphql.GraphQLInt },
+        name: { type: graphql.GraphQLString },
+      },
+      resolve: async (_, {id, name}) => {
+        return await mongo.databaseOperation(mongo.operations.addAuthor, {id: id, name:name})
+      }
+    }
+  }
+});
+
+var schema = new graphql.GraphQLSchema({query: queryType, mutation: mutationType});
 
 var app = express();
 app.use('/graphql', graphqlHTTP({

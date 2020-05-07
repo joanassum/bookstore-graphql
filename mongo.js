@@ -9,7 +9,8 @@ const dbName = 'bookstore';
 
 const operations = {
     findAuthors: "findAuthors",
-    findAuthorByID: "findAuthorByID"
+    findAuthorByID: "findAuthorByID",
+    addAuthor: "addAuthor"
 }
 
 // Create a new MongoClient
@@ -42,6 +43,9 @@ async function databaseOperation(operation, options = {}) {
                 break;
             case operations.findAuthorByID:
                 res = await authorsCollection.findOne({_id: options.id});
+                break
+            case operations.addAuthor:
+                res = await authorsCollection.insertOne({_id: options.id, name:options.name});
                 break
         }
         
